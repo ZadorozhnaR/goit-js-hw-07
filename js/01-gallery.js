@@ -5,8 +5,6 @@ import { galleryItems } from "./gallery-items.js";
 
 const containerPhotos = document.querySelector(".gallery");
 
-containerPhotos.addEventListener("click", handleClick);
-
 const addPhotos = galleryItems
   .map(
     (photo) =>
@@ -20,6 +18,7 @@ const addPhotos = galleryItems
   .join("");
 
 containerPhotos.insertAdjacentHTML("beforeend", addPhotos);
+containerPhotos.addEventListener("click", handleClick);
 
 function handleClick(event) {
   event.preventDefault();
@@ -27,10 +26,26 @@ function handleClick(event) {
     return;
   } else {
     const currentUrl = event.target.dataset.source;
-    const instance = basicLightbox.create(`
-    <img src="${currentUrl}" width="800" height="600">
-`);
-
+    const instance = basicLightbox.create(
+      `
+    <img src="${currentUrl}" width="800" height="600"> `,
+      {
+        onShow: (instance) => {
+          window.addEventListener("keydown", onEscclick);
+        },
+        onClose: (instance) => {
+          window.removeEventListener("keydown", onEscclick);
+        },
+      }
+    );
     instance.show();
+
+    function onEscclick(event) {
+      if (event.code !== "Escape") {
+        return;
+      } else {
+        instance.close();
+      }
+    }
   }
 }
